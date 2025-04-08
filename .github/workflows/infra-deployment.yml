@@ -45,7 +45,8 @@ jobs:
         run: |
           cdk bootstrap --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess
           cdk synth
-        env: 
+          
+        env:
           - OVERRIDE_ECR_REGISTRY: ${{ VARS.OVERRIDE_ECR_REGISTRY }}
           - BUCKET_NAME: ${{ vars.BUCKET_NAME }}
       
