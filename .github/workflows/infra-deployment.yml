@@ -31,6 +31,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          cd source
           pip install -r requirements-poetry.txt
           poetry install
           npm install -g aws-cdk
