@@ -1,0 +1,53 @@
+name: AWS CDK Deployment
+
+on:
+  push:
+    branches: [main]
+  
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials from Test account
+        uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET }}
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements-poetry.txt
+          poetry install
+          npm install -g aws-cdk
+
+
+      - name: Run tests
+        run: |
+          cd deployment
+          sh ./run-unit-tests.sh --in-venv 1
+      
+      - name: Build 
+        run: |
+          cdk bootstrap --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess
+          cdk synth
+        env: 
+          - OVERRIDE_ECR_REGISTRY: ${{ VARS.OVERRIDE_ECR_REGISTRY }}
+          - BUCKET_NAME: ${{ vars.BUCKET_NAME }}
+      
+      - name: Deploy
+        run: cdk deploy
