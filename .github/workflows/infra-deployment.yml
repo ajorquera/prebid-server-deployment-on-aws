@@ -40,7 +40,7 @@ jobs:
       - name: Run tests
         run: |
           cd deployment
-          sh ./run-unit-tests.sh --in-venv 1
+          bash ./run-unit-tests.sh --in-venv 1
       
       - name: Build 
         run: |
